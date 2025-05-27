@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from google.oauth2 import service_account
+import json
+import os
 
 from dotenv import load_dotenv
 import dj_database_url
@@ -19,7 +22,7 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-MEDIA_URL = '/media/'
+# MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Quick-start development settings - unsuitable for production
@@ -48,6 +51,21 @@ INSTALLED_APPS = [
     'store',
     'users'
 ]
+
+
+INSTALLED_APPS += ['storages']
+
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')
+MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+
+GS_CREDENTIALS = None
+credentials_json_content = os.getenv('GS_CREDENTIALS_JSON_CONTENT')
+
+if credentials_json_content:
+    credentials_info = json.loads(credentials_json_content)
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
