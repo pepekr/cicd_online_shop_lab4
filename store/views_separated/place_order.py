@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from store.models import Customer, Product, Order, OrderItem, ShippingAddress
+from django.utils.crypto import get_random_string
 
 
 @require_POST
@@ -50,7 +51,7 @@ def place_order(request):
         user = User.objects.create_user(
             username=email,
             email=email,
-            password=User.objects.make_random_password(),
+            password=get_random_string(12),
             first_name=first_name,
             last_name=last_name,
         )
