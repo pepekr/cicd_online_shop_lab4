@@ -1,0 +1,142 @@
+{% extends "nav.html" %}
+{% load static %}
+{% block title %}My Orders{% endblock %}
+{% block content %}
+
+    <div class="orders-container">
+        <h1>Your Orders</h1>
+
+        {% if orders %}
+            {% for order in orders %}
+                <div class="order-box {% if order.is_canceled %}marked-red{% endif %}">
+                    <p><strong>Order ID:</strong> {{ order.id }}</p>
+                    <p><strong>Status:</strong>
+                        {% if order.is_approved %}
+                            ✅ Approved
+                        {% else %}
+                            ⏳ Pending
+                        {% endif %}
+                    </p>
+                    <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                    <p><strong>Placed On:</strong> {{ order.order_date|date:"Y-m-d H:i" }}</p>
+                    <p><strong>Shipping:</strong>
+                        {% if order.delivered_date %}
+                            📦 Delivered on {{ order.delivered_date }}
+                        {% elif order.shipped_date %}
+                            🚚 Shipped on {{ order.shipped_date }}
+                        {% elif order.estimated_shipping_date %}
+                            🕒 Estimated: {{ order.estimated_shipping_date }}
+                        {% else %}
+                            ⏳ Awaiting processing
+                        {% endif %}
+                    </p>
+                    <p><strong>Track code:</strong> {{ order.tracking_code|default_if_none:"Not created yet" }}</p>
+
+
+                    <h4>Items:</h4>
+                    <ul>
+                        {% for item in order.items.all %}
+                            <li>{{ item.product.name }} — {{ item.quantity }} × ${{ item.price_at_order_time }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% if order.is_canceled %}
+                        <p class="canceled-order">Canceled</p>
+                    {% elif order.is_shipped %}
+                        <p class="shipped-order"> Shipped</p>
+                    {% else %}
+                        <button class="cancel-order" data-order-id="{{ order.id }}">Cancel Order</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>You haven't placed any orders yet.</p>
+        {% endif %}
+    </div>
+
+    <style>
+        .orders-container {
+            max-width: 800px;
+            margin: auto;
+            padding: 1rem;
+        }
+
+        .order-box {
+            background: #f4f4f4;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .canceled-order {
+            color: #d9534f; /* Bootstrap red */
+            font-weight: bold;
+            background-color: #ffe5e5;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .shipped-order {
+            color: #5cb85c; /* Bootstrap green */
+            font-weight: bold;
+            background-color: #e5ffe5;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .marked-red {
+            border: 2px solid #d9534f;
+            background-color: #ffe5e5;
+        }
+
+        .cancel-order {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #d9534f;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        document.querySelectorAll('.cancel-order').forEach(button => {
+            button.addEventListener('click', () => {
+                const orderId = button.dataset.orderId;
+
+                fetch('/cancel-order/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: new URLSearchParams({
+                        'order_id': orderId
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Order canceled.');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Request failed', error);
+                        alert('Something went wrong.');
+                    });
+            });
+        });
+
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+    </script>
+
+{% endblock %}
