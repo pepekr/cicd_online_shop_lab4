@@ -1,0 +1,20 @@
+{% extends "nav.html" %}
+{% load static %}
+{% block title %}Registration{% endblock %}
+{% block content %}
+    <link rel="stylesheet" href={% static 'store/css/login.css'%}>
+    <form class = "login-div" method="post" action="">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="login-email">{{ form.email.label_tag }} {{ form.email }}</div>
+    <div class="login-password">{{ form.password.label_tag }} {{ form.password }}</div>
+    <button class="login-submit" type="submit">Login</button>
+    <button class="login-reg" onclick="goToRegistration()">Register</button>
+</form>
+    <script>
+    function goToRegistration()
+    {
+        window.location.href = "{% url 'registration' %}";
+    }
+    </script>
+{% endblock %}
