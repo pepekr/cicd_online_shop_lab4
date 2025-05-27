@@ -1,0 +1,95 @@
+.navbar-nav {
+    gap: 1rem; /* Adds spacing between nav items */
+}
+
+body, html, root {
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+}
+
+.cart-count {
+    position: absolute;
+    top: 100%;
+    left: 100%;
+    transform: translate(-100%, -100%);
+
+}
+
+.delete-from-cart-modal {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: 0.25em 0.25em;
+    color: #000;
+    background: transparent;
+    border: 0;
+    appearance: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.btn-checkout {
+    background-color: #e0e0e0; /* light gray */
+    color: #333;
+    border: 1px solid #bdbdbd;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 0; /* straight edges */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-checkout:hover {
+    background-color: #d6d6d6;
+    color: #000;
+}
+
+.delete-from-cart-modal::before {
+    content: "×";
+    display: block;
+    font-weight: bold;
+}
+
+.delete-from-cart-modal:hover {
+    opacity: 0.75;
+}
+
+.cart-main {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+
+}
+
+div.main-navbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+
+}
+
+.search-div {
+    display: flex;
+    flex-grow: 1;
+    max-width: 500px;
+}
+
+.nav-main-item {
+    margin: 0 12px 12px 0;
+}
+
+ul.navbar-nav li > button {
+    margin-left: 20px;
+}
+
+.cart-main:hover {
+    transform: scale(1.1);
+}
