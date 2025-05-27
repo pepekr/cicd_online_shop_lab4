@@ -14,3 +14,10 @@ def register_view(request):
     else:
         form = CustomUserCreationForm()
     return render(request, "registration.html", {"form": form})
+
+def login_view(request):
+    form = EmailLoginForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        login(request, form.user)
+        return redirect("/")
+    return render(request, "login.html", {"form": form})
