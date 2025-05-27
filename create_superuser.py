@@ -2,8 +2,7 @@ import os
 import django
 from django.contrib.auth import get_user_model
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cicd_online_shop_lab4
-.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cicd_online_shop_lab4.settings')
 django.setup()
 
 User = get_user_model()
