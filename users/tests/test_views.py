@@ -50,3 +50,29 @@ class AuthViewsTests(TestCase):
         self.assertFormError(response, 'form', 'password2', "The two password fields didn’t match.")
         # Користувач НЕ створений
         self.assertFalse(User.objects.filter(username='testuser').exists())
+
+    def test_login_get(self):
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+
+    def test_login_post_valid(self):
+        # Спочатку створимо користувача
+        user = User.objects.create_user(username='testuser', email='test@example.com', password='testpass123')
+        data = {
+            'email': 'test@example.com',  # враховуючи що у тебе EmailLoginForm
+            'password': 'testpass123',
+        }
+        response = self.client.post(reverse('login'), data)
+        self.assertRedirects(response, '/')
+        self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
+
+    def test_login_post_invalid(self):
+        data = {
+            'email': 'wrong@example.com',
+            'password': 'wrongpass',
+        }
+        response = self.client.post(reverse('login'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+        self.assertFalse('_auth_user_id' in self.client.session)
