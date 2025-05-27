@@ -32,3 +32,21 @@ class AuthViewsTests(TestCase):
         # Перевірка, що користувач залогінений
         user = User.objects.get(username='testuser')
         self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
+
+    def test_register_post_invalid(self):
+        # POST з некоректними даними (наприклад, паролі не співпадають)
+        data = {
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'first_name': '',  # відсутній first_name
+            'last_name': '',  # відсутній last_name
+            'phone': '',  # відсутній phone
+            'password1': 'password123',
+            'password2': 'password321',  # різні паролі
+        }
+        response = self.client.post(reverse('registration'), data)
+        # Повинно повернути сторінку з помилками (код 200, але без редіректу)
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'password2', "The two password fields didn’t match.")
+        # Користувач НЕ створений
+        self.assertFalse(User.objects.filter(username='testuser').exists())
