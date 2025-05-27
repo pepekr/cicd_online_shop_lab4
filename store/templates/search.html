@@ -1,0 +1,37 @@
+{% extends "nav.html" %}
+{% block title %}Search{% endblock %}
+{% load static %}
+{% block content %}
+  <form method="get" action="{% url 'search' %}" class="mb-4">
+    <div class="row">
+      <div class="col">
+        <input type="text" name="name" class="form-control" placeholder="Search by name" value="{{ request.GET.name }}">
+      </div>
+      <div class="col">
+        <input type="number" name="min_price" class="form-control" placeholder="Min Price" value="{{ request.GET.min_price }}">
+      </div>
+      <div class="col">
+        <input type="number" name="max_price" class="form-control" placeholder="Max Price" value="{{ request.GET.max_price }}">
+      </div>
+      <div class="col">
+        <select name="category" class="form-control">
+          <option value="">All Categories</option>
+          {% for cat in categories %}
+            <option value="{{ cat }}" {% if request.GET.category == cat %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col">
+        <button type="submit" class="btn btn-primary">Filter</button>
+      </div>
+    </div>
+  </form>
+
+  {% for product in products %}
+    <div class="card mb-3">
+      {% include "card.html" with item=product %}
+    </div>
+  {% empty %}
+    <p>No products found.</p>
+  {% endfor %}
+{% endblock %}

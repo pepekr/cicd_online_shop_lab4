@@ -1,0 +1,79 @@
+{% extends "nav.html" %}
+{% load static %}
+{% block title %} Product Details {% endblock %}
+
+{% block content %}
+    <div class="product-page">
+        <link rel="stylesheet" href="{% static 'store/css/product.css' %}"/>
+
+        <h1>{{ product.name }}</h1>
+        <div class="main-div-info">
+            <div class="carousel-description-container">
+                <div class="carousel">
+                    <div class="carousel-container" id="carouselContainer">
+                        {% for image_url in images %}
+                            <img src="{{ image_url }}" alt="{{ product.name }} image {{ forloop.counter }}"
+                                 class="carousel-image"/>
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-button prev" onclick="prevImage()">&#10094;</button>
+                    <button class="carousel-button next" onclick="nextImage()">&#10095;</button>
+                </div>
+
+            </div>
+
+            <div class="product-info">
+                <p><strong>Category:</strong> {{ product.category }}</p>
+                <p class="price"><strong>Price:</strong> ${{ product.price }}</p>
+
+                <div class="button-container">
+                    <button onclick="addToCart({{ product.id }})">Add to cart</button>
+                    <button onclick="goToCheckout()">Buy</button>
+                </div>
+            </div>
+
+        </div>
+<div class="description-bottom">
+                    <p><strong>Description:</strong> {{ product.description }}</p>
+                </div>
+        <script src="{% static 'store/js/shoppingCart.js' %}"></script>
+        <script>
+            let currentIndex = 0;
+            const images = document.querySelectorAll('.carousel-image');
+
+            function showImage(index) {
+                images.forEach((img, i) => {
+                    img.style.display = i === index ? 'block' : 'none';
+                });
+            }
+
+            function prevImage() {
+                currentIndex = (currentIndex - 1 + images.length) % images.length;
+                showImage(currentIndex);
+            }
+
+            function nextImage() {
+                currentIndex = (currentIndex + 1) % images.length;
+                showImage(currentIndex);
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                showImage(currentIndex);
+            });
+
+            async function goToCheckout() {
+                const cart = getCart();
+                await fetch('/checkout/', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: JSON.stringify({cart})
+                });
+                window.location.href = "/checkout/";
+            }
+        </script>
+    </div>
+
+{% endblock %}
