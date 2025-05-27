@@ -1,0 +1,123 @@
+.main-div-info {
+    display: flex;
+}
+
+/* New container that stacks carousel + description vertically */
+.carousel-description-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* push content to bottom */
+    width: 60%;
+    border-right: 1px solid #ccc; /* subtle vertical border */
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+
+.carousel {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Description area below carousel, aligned to bottom */
+.description-bottom {
+    padding-top: 10px; /* spacing from carousel */
+    color: #333;
+    font-size: 16px;
+}
+
+/* Product info column on right */
+.product-page .product-info {
+    display: flex;
+    flex-direction: column;
+    width: 40%;
+    background-color: #f9f9f9; /* subtle light gray background */
+    padding: 20px;
+    box-sizing: border-box;
+    border-left: 1px solid #ccc; /* optional left border for symmetry */
+    color: #444; /* slightly softer text color */
+}
+
+/* Carousel images styling */
+.product-page .carousel-image {
+    width: 100%;
+    height: 400px; /* Fixed height */
+    object-fit: scale-down;
+    display: none;
+    border-radius: 10px;
+}
+
+/* Carousel arrow buttons */
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    z-index: 10;
+}
+
+.carousel-button:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.carousel-button.prev {
+    left: 10px;
+}
+
+.carousel-button.next {
+    right: 10px;
+}
+
+
+
+/* Buttons inside product-info */
+.product-info button {
+    background-color: #007bff; /* bootstrap blue */
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    margin-right: 8px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+}
+
+.product-info button:hover {
+    background-color: #0056b3; /* darker blue */
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+    .main-div-info {
+        flex-direction: column;
+    }
+    .carousel-description-container,
+    .product-page .product-info {
+        width: 100%;
+        border: none;
+        padding: 0;
+        box-shadow: none;
+    }
+    .product-page .carousel-image {
+        height: 250px;
+    }
+    .carousel-button.prev {
+        left: 5px;
+    }
+    .carousel-button.next {
+        right: 5px;
+    }
+    .product-info button {
+        width: 48%;
+        margin: 8px 1% 0 0;
+    }
+}
