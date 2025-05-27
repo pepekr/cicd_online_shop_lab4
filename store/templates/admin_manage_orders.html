@@ -1,0 +1,245 @@
+{% extends "nav.html" %}
+{% load static %}
+{% block title %}Manage Orders{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <h1>Manage Orders</h1>
+
+    <form method="get" class="filter-form">
+        <input type="text" name="order_id" placeholder="Order ID" value="{{ order_id }}">
+        <input type="text" name="user_id" placeholder="User ID" value="{{ user_id }}">
+        <select name="status">
+            <option value="">-- Status --</option>
+            <option value="recent" {% if status_filter == 'recent' %}selected{% endif %}>Recent (Last 7 days)</option>
+            <option value="canceled" {% if status_filter == 'canceled' %}selected{% endif %}>Canceled</option>
+            <option value="waiting_approval" {% if status_filter == 'waiting_approval' %}selected{% endif %}>Waiting for Approval</option>
+            <option value="not_canceled" {% if status_filter == 'not_canceled' %}selected{% endif %}>Not Canceled</option>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+    {% if orders %}
+        {% for order in orders %}
+            <div class="order-box
+                {% if order.is_canceled %}marked-red{% elif order.is_approved and order.is_shipped %}shipped-order{% elif not order.is_approved and not order.is_canceled %}pending-order{% endif %}">
+
+                <p><strong>Order ID:</strong> {{ order.id }}</p>
+                <p><strong>User:</strong> {{ order.customer.user.username }} (ID: {{ order.customer.user.id }})</p>
+
+                <p><strong>Status:</strong>
+                    {% if order.is_canceled %}
+                        ❌ Canceled
+                    {% elif order.is_approved %}
+                        ✅ Approved
+                    {% else %}
+                        ⏳ Pending Approval
+                    {% endif %}
+                </p>
+
+                <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+                <p><strong>Placed On:</strong> {{ order.order_date|date:"Y-m-d H:i" }}</p>
+                <p><strong>Shipping:</strong>
+                    {% if order.delivered_date %}
+                        📦 Delivered on {{ order.delivered_date }}
+                    {% elif order.shipped_date %}
+                        🚚 Shipped on {{ order.shipped_date }}
+                    {% elif order.estimated_shipping_date %}
+                        🕒 Estimated: {{ order.estimated_shipping_date }}
+                    {% else %}
+                        ⏳ Awaiting processing
+                    {% endif %}
+                </p>
+
+                <h4>Items:</h4>
+                <ul>
+                    {% for item in order.items.all %}
+                        <li>{{ item.product.name }} — {{ item.quantity }} × ${{ item.price_at_order_time }}</li>
+                    {% endfor %}
+                </ul>
+
+                {% if order.tracking_code %}
+                    <p><strong>Tracking Code:</strong> {{ order.tracking_code }}</p>
+                {% else %}
+                    <div class="tracking-code-container">
+                        <input type="text" placeholder="Add tracking code" id="tracking-input-{{ order.id }}">
+                        <button class="tracking-btn" data-order-id="{{ order.id }}">Save Tracking</button>
+                    </div>
+                {% endif %}
+
+                <div class="action-buttons">
+                    {% if not order.is_approved and not order.is_canceled %}
+                        <button class="approve-btn" data-order-id="{{ order.id }}">Approve</button>
+                    {% endif %}
+                    {% if not order.is_canceled %}
+                        <button class="cancel-btn" data-order-id="{{ order.id }}">Cancel</button>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No orders found.</p>
+    {% endif %}
+</div>
+
+<style>
+.orders-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1rem;
+    font-family: Arial, sans-serif;
+}
+
+.filter-form {
+    margin-bottom: 20px;
+}
+
+.filter-form input, .filter-form select {
+    padding: 8px;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+.filter-form button {
+    padding: 8px 14px;
+    background-color: #0275d8;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.order-box {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    border: 1px solid #ddd;
+}
+
+.marked-red {
+    border-color: #d9534f;
+    background-color: #ffe5e5;
+}
+
+.shipped-order {
+    border-color: #5cb85c;
+    background-color: #e5ffe5;
+}
+
+.pending-order {
+    border-color: #f0ad4e;
+    background-color: #fff8e1;
+}
+
+.action-buttons button,
+.tracking-btn {
+    margin-top: 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.approve-btn {
+    background-color: #5cb85c;
+    color: white;
+    margin-right: 10px;
+}
+
+.cancel-btn {
+    background-color: #d9534f;
+    color: white;
+}
+
+.tracking-code-container {
+    margin-top: 10px;
+}
+
+.tracking-code-container input {
+    padding: 6px 8px;
+    font-size: 14px;
+    width: 220px;
+    margin-right: 8px;
+}
+</style>
+
+<script>
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function sendPost(action, orderId, extraData = {}) {
+    const data = new URLSearchParams({ action: action, order_id: orderId, ...extraData });
+    return fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCSRFToken(),
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data
+    }).then(res => res.json());
+}
+
+// Approve buttons
+document.querySelectorAll('.approve-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const orderId = btn.dataset.orderId;
+        sendPost('approve', orderId)
+            .then(data => {
+                if (data.success) {
+                    alert('Order approved.');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(() => alert('Request failed.'));
+    });
+});
+
+// Cancel buttons
+document.querySelectorAll('.cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const orderId = btn.dataset.orderId;
+        sendPost('cancel', orderId)
+            .then(data => {
+                if (data.success) {
+                    alert('Order canceled.');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(() => alert('Request failed.'));
+    });
+});
+
+// Tracking code buttons
+document.querySelectorAll('.tracking-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const orderId = btn.dataset.orderId;
+        const input = document.getElementById(`tracking-input-${orderId}`);
+        const trackingCode = input.value.trim();
+
+        if (!trackingCode) {
+            alert('Please enter a tracking code.');
+            return;
+        }
+
+        sendPost('add_tracking', orderId, { tracking_code: trackingCode })
+            .then(data => {
+                if (data.success) {
+                    alert('Tracking code saved.');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(() => alert('Request failed.'));
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "nav.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+    <style>
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .welcome-message {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: rgba(0, 0, 0, .3);
+        }
+
+
+        .section-title {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: normal;
+        }
+
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .category-button {
+            padding: 8px 14px;
+            font-size: 14px;
+            border: 1px solid #007bff;
+            color: #007bff;
+            text-decoration: none;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .category-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .product-column {
+            width: 23%;
+        }
+
+        .no-products {
+            font-style: italic;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .product-column {
+                width: 48%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .product-column {
+                width: 100%;
+            }
+        }
+    </style>
+
+    <div class="page-container">
+        <div class="welcome-message">
+            Hello {{ user_name }}! Welcome to our website!
+        </div>
+
+        <div class="section-title">Categories</div>
+        <div class="category-buttons">
+            {% for cat in categories %}
+                <a href="?category={{ cat }}"
+                   class="category-button {% if selected_category == cat %}active{% endif %}">
+                    {{ cat }}
+                </a>
+            {% endfor %}
+        </div>
+
+        {% if selected_category %}
+            <div class="section-title">Products in "{{ selected_category }}"</div>
+            {% if category_products %}
+                <div class="product-grid">
+                    {% for product in category_products %}
+                        <div class="product-column">
+                            {% include "card.html" with item=product %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-products">No products found in this category.</p>
+            {% endif %}
+        {% endif %}
+
+        <hr/>
+
+        <div class="section-title">Random Products</div>
+        <div class="product-grid">
+            {% for product in random_products %}
+                <div class="product-column">
+                    {% include "card.html" with item=product %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
