@@ -23,4 +23,4 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["gunicorn", "online_shop.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "cicd_online_shop_lab4.wsgi:application", "--bind", "0.0.0.0:8000"]
