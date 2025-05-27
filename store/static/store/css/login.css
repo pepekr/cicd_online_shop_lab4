@@ -1,0 +1,73 @@
+.login-div {
+    max-width: 320px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #f0f0f0; /* light gray background */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.login-email,
+.login-password {
+    margin-bottom: 15px;
+}
+
+.login-email label,
+.login-password label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #555;
+}
+
+.login-email input,
+.login-password input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+}
+
+.login-email input:focus,
+.login-password input:focus {
+    outline: none;
+    border-color: #999;
+    background-color: #fafafa;
+}
+
+.login-submit,
+.login-reg {
+    width: 100%;
+    padding: 10px 0;
+    margin-top: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+}
+
+.login-submit {
+    background-color: #007529;
+    color: #fff;
+}
+
+.login-submit:hover {
+    background-color: #028327;
+}
+
+.login-reg {
+    background-color: #002593;
+    color: #fff;
+}
+
+.login-reg:hover {
+    background-color: #0125a4;
+}
