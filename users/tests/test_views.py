@@ -76,3 +76,11 @@ class AuthViewsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
         self.assertFalse('_auth_user_id' in self.client.session)
+
+    def test_logout_view(self):
+        # Створюємо і логінимось
+        user = User.objects.create_user(username='testuser', password='testpass123')
+        self.client.login(username='testuser', password='testpass123')
+        response = self.client.get(reverse('logout'))
+        self.assertRedirects(response, '/login/')
+        self.assertFalse('_auth_user_id' in self.client.session)
