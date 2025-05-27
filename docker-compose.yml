@@ -3,23 +3,24 @@ version: '3.9'
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app           # монтируем локальну папку проекту в контейнер
-      - ./db.sqlite3:/app/db.sqlite3  # монтируем файл SQLite, щоб база зберігалась локально
     ports:
       - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://cicdlab4:wMH5M9JKsTUZMFg72lyv6xd15DHQrKl6@dpg-d0qrh0buibrs73esja0g-a.frankfurt-postgres.render.com/cicdlab4
+      - DJANGO_SETTINGS_MODULE=cicd_online_shop_lab4.settings
+    # volumes:
+    #   - .:/app  # якщо хочеш девелопмент, можна підключити, але не для проду
 
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: cicdlab4
+      POSTGRES_PASSWORD: wMH5M9JKsTUZMFg72lyv6xd15DHQrKl6
+      POSTGRES_DB: cicdlab4
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
-
-
-
-
-
-
-
-
-
-
-
-        
+volumes:
+  pgdata:
