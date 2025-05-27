@@ -20,12 +20,20 @@ jobs:
       - name: Build Docker image for tests
         run: docker build -t myapp:test .
 
-      - name: Run container, collect static files and execute tests
+      - name: Run container, create superuser, collect static, and execute tests
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/app \
             -v ${{ github.workspace }}/db.sqlite3:/app/db.sqlite3 \
-            myapp:test bash -c "python manage.py collectstatic --noinput && python manage.py test --keepdb"
+            -e DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }} \
+            -e DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }} \
+            -e DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }} \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            myapp:test bash -c "
+              python create_superuser.py && \
+              python manage.py collectstatic --noinput && \
+              python manage.py test --keepdb
+            "
 
   deploy:
     needs: test
