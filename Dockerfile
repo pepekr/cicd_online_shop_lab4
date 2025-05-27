@@ -19,6 +19,12 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy project files
 COPY . /app/
 
+# Create staticfiles directory explicitly to avoid runtime warnings
+RUN mkdir -p /app/staticfiles
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Expose the port
 EXPOSE 8000
 

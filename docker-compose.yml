@@ -3,6 +3,8 @@ version: '3.9'
 services:
   web:
     build: .
+    command: gunicorn cicd_online_shop_lab4.wsgi:application --bind 0.0.0.0:8000
+
     ports:
       - "8000:8000"
     depends_on:
@@ -18,6 +20,7 @@ services:
       POSTGRES_PASSWORD: wMH5M9JKsTUZMFg72lyv6xd15DHQrKl6
       POSTGRES_DB: cicdlab4
     volumes:
+      - .:/app
       - pgdata:/var/lib/postgresql/data
 
 volumes:
