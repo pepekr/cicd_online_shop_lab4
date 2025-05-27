@@ -11,9 +11,13 @@ def register_view(request):
         if form.is_valid():
             login(request, form.save())
             return redirect("/")
+        else:
+            # When form invalid, re-render with errors
+            return render(request, "registration.html", {"form": form})
     else:
         form = CustomUserCreationForm()
     return render(request, "registration.html", {"form": form})
+
 
 def login_view(request):
     form = EmailLoginForm(request.POST or None)
