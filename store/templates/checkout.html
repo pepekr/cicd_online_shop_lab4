@@ -1,0 +1,152 @@
+{% extends "nav.html" %}
+{% load static %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" href="{% static "store/css/checkout.css" %}">
+        <title>Checkout</title>
+    </head>
+    <body>
+
+    <h1>Checkout</h1>
+
+    <div class="container">
+
+        <!-- Checkout Form -->
+        <div class="checkout-form">
+            <h2>Shipping & Payment</h2>
+            <form method="POST" action="/checkout/place_order/">
+                {% csrf_token %}
+
+                <!-- Shipping Info -->
+                <label for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required
+                       value="{{ initial_data.full_name|default:'' }}"/>
+
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required value="{{ initial_data.email|default:'' }}"/>
+
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" value="{{ initial_data.phone|default:'' }}"/>
+
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" required value="{{ initial_data.address|default:'' }}"/>
+
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" required value="{{ initial_data.city|default:'' }}"/>
+
+                <label for="postal_code">Postal Code</label>
+                <input type="text" id="postal_code" name="postal_code" required
+                       value="{{ initial_data.postal_code|default:'' }}"/>
+
+                <!-- Payment Method -->
+                <label for="payment_method">Payment Method</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="cod">Cash on Delivery</option>
+                </select>
+
+                <!-- Card info: show only for credit_card or PayPal -->
+                <div id="card-info" class="card-info">
+                    <label for="card_number">Card Number</label>
+                    <input type="text" id="card_number" name="card_number" maxlength="19"
+                           placeholder="1234 5678 9012 3456"/>
+
+                    <label for="expiry_date">Expiry Date (MM/YY)</label>
+                    <input type="text" id="expiry_date" name="expiry_date" maxlength="5" placeholder="MM/YY"/>
+
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" name="cvv" maxlength="4" placeholder="123"/>
+                </div>
+
+                <button class="place-order" type="submit">Place Order</button>
+            </form>
+
+        </div>
+        <!-- Cart Summary -->
+        <div class="products">
+            <h2>Order Summary</h2>
+            {% if cart_items %}
+                {% for item in cart_items %}
+                    <div class="product-item">
+                        <div>
+                            <strong>{{ item.name }}</strong><br/>
+                            Quantity: {{ item.quantity }}
+                        </div>
+                        <div>
+                            ${{ item.price|floatformat:2 }} × {{ item.quantity }} = ${{ item.subtotal|floatformat:2 }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="total">Total: ${{ total|floatformat:2 }}</div>
+            {% else %}
+                <p>Your cart is empty.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const paymentMethodSelect = document.getElementById('payment_method');
+        const cardInfoDiv = document.getElementById('card-info');
+
+        function toggleCardInfo() {
+            const val = paymentMethodSelect.value;
+            if (val === 'credit_card' || val === 'paypal') {
+                cardInfoDiv.style.display = 'block';
+                cardInfoDiv.querySelectorAll('input').forEach(input => input.required = true);
+            } else {
+                cardInfoDiv.style.display = 'none';
+                cardInfoDiv.querySelectorAll('input').forEach(input => input.required = false);
+            }
+        }
+
+        paymentMethodSelect.addEventListener('change', toggleCardInfo);
+        toggleCardInfo(); // run on page load
+
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // prevent normal submit
+
+            const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Collect only the fields you want to send (exclude card info)
+            const data = {
+                full_name: form.full_name.value,
+                email: form.email.value,
+                phone: form.phone.value,
+                address: form.address.value,
+                city: form.city.value,
+                postal_code: form.postal_code.value,
+                payment_method: form.payment_method.value,
+            };
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    // Success - redirect or show message
+                    alert('Order placed successfully!');
+                    window.location.href = '';  // adjust as needed
+                } else {
+                    const err = await response.text();
+                    alert('Error placing order: ' + err);
+                }
+            } catch (err) {
+                alert('Network error: ' + err.message);
+            }
+        });
+    </script>
+
+    </body>
+
+{% endblock %}
