@@ -31,8 +31,10 @@ SECRET_KEY = 'django-insecure-qp-v!$$5i8$m(n!&+5_m$9+s#bc-_jeku0_b9)%5l!!&5!@4sj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['cicd-online-shop-lab4.onrender.com']
+CSRF_TRUSTED_ORIGINS = [
+    'https://cicd-online-shop-lab4.onrender.com'
+]
 
 # Application definition
 
