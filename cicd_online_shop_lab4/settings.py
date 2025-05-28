@@ -58,12 +58,10 @@ INSTALLED_APPS += ['storages']
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')
 MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
-print(GS_BUCKET_NAME)
 GS_CREDENTIALS = None
 credentials_json_content = os.getenv('GS_CREDENTIALS_JSON_CONTENT')
-print(credentials_json_content)
 if credentials_json_content:
-    credentials_info = json.loads(json.loads(credentials_json_content))
+    credentials_info = json.loads(credentials_json_content)
     GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
 print(GS_CREDENTIALS)
 
