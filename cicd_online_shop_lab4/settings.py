@@ -61,7 +61,7 @@ MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 GS_CREDENTIALS = None
 credentials_json_content = os.getenv('GS_CREDENTIALS_JSON_CONTENT')
 if credentials_json_content:
-try:
+    try:
         # Your way: decode, re-encode, parse as literal
         loaded = json.loads(credentials_json_content)
         dumped = json.dumps(loaded)
