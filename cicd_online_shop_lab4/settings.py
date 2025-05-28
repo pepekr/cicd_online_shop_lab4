@@ -23,7 +23,7 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -55,7 +55,7 @@ INSTALLED_APPS = [
 
 INSTALLED_APPS += ['storages']
 
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+# DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')
 MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 GS_CREDENTIALS = None
@@ -85,7 +85,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'cicd_online_shop_lab4.urls'
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -112,6 +112,27 @@ DATABASES = {
         default=os.environ.get("DATABASE_URL")
     )
 }
+# settings.py
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "project_id": "mystical-moon-460212-b6",  # your GCP project id
+            "credentials": GS_CREDENTIALS,            # your loaded credentials object
+            "bucket_name": "django_cicd_lab4",        # your GCS bucket name
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "OPTIONS": {
+            "project_id": "mystical-moon-460212-b6",
+            "credentials": GS_CREDENTIALS,
+            "bucket_name": "your-static-bucket-name",
+        },
+    },
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
