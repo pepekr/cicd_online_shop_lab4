@@ -17,7 +17,6 @@ import os
 import ast
 from dotenv import load_dotenv
 import dj_database_url
-from django.core.files.storage import default_storage
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -158,7 +157,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 # STATICFILES_DIRS = [BASE_DIR / 'static']
-default_storage.save("test_upload.txt", ContentFile("Hello from Django"))
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
