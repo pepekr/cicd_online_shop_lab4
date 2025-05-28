@@ -14,7 +14,7 @@ from pathlib import Path
 from google.oauth2 import service_account
 import json
 import os
-
+import ast
 from dotenv import load_dotenv
 import dj_database_url
 
@@ -61,9 +61,17 @@ MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 GS_CREDENTIALS = None
 credentials_json_content = os.getenv('GS_CREDENTIALS_JSON_CONTENT')
 if credentials_json_content:
-    credentials_info = json.loads(credentials_json_content)
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
-print(GS_CREDENTIALS)
+    try:
+        # Your way: decode, re-encode, parse as literal
+        loaded = json.loads(credentials_json_content)
+        dumped = json.dumps(loaded)
+        json_data = ast.literal_eval(dumped)
+        credentials_info = json_data
+
+        # Use it
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
+    except Exception as e:
+        raise Exception("Your method failed to parse GS_CREDENTIALS_JSON_CONTENT") from e
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
