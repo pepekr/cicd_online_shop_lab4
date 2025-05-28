@@ -17,8 +17,9 @@ import os
 import ast
 from dotenv import load_dotenv
 import dj_database_url
-load_dotenv()
 
+load_dotenv()
+print("SETTINGS")
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # MEDIA_URL = '/media/'
@@ -33,82 +34,85 @@ SECRET_KEY = 'django-insecure-qp-v!$$5i8$m(n!&+5_m$9+s#bc-_jeku0_b9)%5l!!&5!@4sj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False  # os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['cicd-online-shop-lab4.onrender.com']
+ALLOWED_HOSTS = ['cicd-online-shop-lab4.onrender.com', '127.0.0.1', 'localhost']
 CSRF_TRUSTED_ORIGINS = [
-'https://cicd-online-shop-lab4.onrender.com'
+    'https://cicd-online-shop-lab4.onrender.com',
+    'http://127.0.0.1:8000'
 ]
 
 # Application definition
 
 INSTALLED_APPS = [
-'django.contrib.admin',
-'django.contrib.auth',
-'django.contrib.contenttypes',
-'django.contrib.sessions',
-'django.contrib.messages',
-'django.contrib.staticfiles',
-'store',
-'users'
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'store',
+    'users'
 ]
-
 
 INSTALLED_APPS += ['storages']
 
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
 GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME')
 MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 GS_CREDENTIALS = None
 credentials_json_content = os.getenv('GS_CREDENTIALS_JSON_CONTENT')
 if credentials_json_content:
     try:
-        # Your way: decode, re-encode, parse as literal
-        loaded = json.loads(credentials_json_content)
-        dumped = json.dumps(loaded)
-        json_data = ast.literal_eval(dumped)
-        credentials_info = json_data
-
-        # Use it
-        GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
-    except Exception as e:
-        raise Exception("Your method failed to parse GS_CREDENTIALS_JSON_CONTENT") from e
         # Try normal parse first
         credentials_info = json.loads(credentials_json_content)
     except json.JSONDecodeError:
         try:
-            # Fallback if it's double-encoded
             credentials_info = json.loads(json.loads(credentials_json_content))
         except json.JSONDecodeError as e:
             raise Exception("Failed to parse GS_CREDENTIALS_JSON_CONTENT") from e
 
     GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
 
+
 MIDDLEWARE = [
-'django.middleware.security.SecurityMiddleware',
-'whitenoise.middleware.WhiteNoiseMiddleware',
-'django.contrib.sessions.middleware.SessionMiddleware',
-'django.middleware.common.CommonMiddleware',
-'django.middleware.csrf.CsrfViewMiddleware',
-'django.contrib.auth.middleware.AuthenticationMiddleware',
-'django.contrib.messages.middleware.MessageMiddleware',
-'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'cicd_online_shop_lab4.urls'
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "bucket_name": GS_BUCKET_NAME,
+            "credentials": GS_CREDENTIALS,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 TEMPLATES = [
-{
-'BACKEND': 'django.template.backends.django.DjangoTemplates',
-'DIRS': [BASE_DIR / 'templates']
-,
-'APP_DIRS': True,
-'OPTIONS': {
-'context_processors': [
-'django.template.context_processors.request',
-'django.contrib.auth.context_processors.auth',
-'django.contrib.messages.context_processors.messages',
-],
-},
-},
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates']
+        ,
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 WSGI_APPLICATION = 'cicd_online_shop_lab4.wsgi.application'
@@ -117,27 +121,27 @@ WSGI_APPLICATION = 'cicd_online_shop_lab4.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-'default': dj_database_url.config(
-default=os.environ.get("DATABASE_URL")
-)
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-{
-'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-},
-{
-'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-},
-{
-'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-},
-{
-'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 # Internationalization
@@ -157,6 +161,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 # STATICFILES_DIRS = [BASE_DIR / 'static']
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
