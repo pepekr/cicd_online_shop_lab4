@@ -62,16 +62,16 @@ GS_CREDENTIALS = None
 credentials_json_content = os.getenv('GS_CREDENTIALS_JSON_CONTENT')
 if credentials_json_content:
     try:
-        # Your way: decode, re-encode, parse as literal
-        loaded = json.loads(credentials_json_content)
-        dumped = json.dumps(loaded)
-        json_data = ast.literal_eval(dumped)
-        credentials_info = json_data
+        # Try normal parse first
+        credentials_info = json.loads(credentials_json_content)
+    except json.JSONDecodeError:
+        try:
+            # Fallback if it's double-encoded
+            credentials_info = json.loads(json.loads(credentials_json_content))
+        except json.JSONDecodeError as e:
+            raise Exception("Failed to parse GS_CREDENTIALS_JSON_CONTENT") from e
 
-        # Use it
-        GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
-    except Exception as e:
-        raise Exception("Your method failed to parse GS_CREDENTIALS_JSON_CONTENT") from e
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
