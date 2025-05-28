@@ -63,7 +63,7 @@ GS_CREDENTIALS = None
 credentials_json_content = os.getenv('GS_CREDENTIALS_JSON_CONTENT')
 print(credentials_json_content)
 if credentials_json_content:
-    credentials_info = json.loads(credentials_json_content)
+    credentials_info = json.loads(json.loads(credentials_json_content))
     GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
 print(GS_CREDENTIALS)
 
